@@ -2,9 +2,10 @@ import requests
 from bs4 import BeautifulSoup
 from serpapi import GoogleSearch
 import re
+import csv
 
 # Set your SerpAPI key here (create an account at serpapi.com and get a free key)
-SERPAPI_KEY = "your_serpapi_api_key"
+SERPAPI_KEY = "f055ec0ebda9fee006ccb40115913787ea357848d03cf976ceb994fd9a349057"
 
 # Function to extract emails and phones from a page
 def extract_contacts_from_url(url):
@@ -58,14 +59,21 @@ def search_leads(query, num_pages=1):
 # Example usage
 if __name__ == "__main__":
     # Define your niche
-    niche = "digital marketing agencies in India contact"
+    niche = "AI/ML companies in India which are actively hiring interns contact"
 
-    leads = search_leads(niche, num_pages=2)
+    leads = search_leads(niche, num_pages=5)
 
-    # Print results
-    for idx, lead in enumerate(leads, start=1):
-        print(f"\nLead {idx}:")
-        print(f"URL: {lead['url']}")
-        print(f"Title: {lead['title']}")
-        print(f"Emails: {lead['emails']}")
-        print(f"Phones: {lead['phones']}")
+    with open("leads.csv", "w", newline="", encoding="utf-8") as csvfile:
+        fieldnames = ["URL", "Title", "Snippet", "Emails", "Phones"]
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for lead in leads:
+            writer.writerow({
+                "URL": lead["url"],
+                "Title": lead["title"],
+                "Snippet": lead["snippet"],
+                "Emails": ", ".join(lead["emails"]),
+                "Phones": ", ".join(lead["phones"])
+            })
+            print("Results saved to leads.csv")
